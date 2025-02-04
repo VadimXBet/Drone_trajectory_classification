@@ -1,0 +1,12 @@
+/test_data/
+/output_videos/
+/drone_tracking/
+/drone-vs-bird-classification/
+/data/
+/__pycache__/
+/.vscode/
+/ByteTrack/
+*.csv
+*.xlsx
+*.avi
+*.mp4
