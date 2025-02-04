@@ -77,7 +77,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             for t in online_targets:
                 # tlwh = t[0:4]
                 # tlwh[2] = tlwh[2] - tlwh[0]
-                # tlwh[3] = tlwh[3] - tlwh[1]
+                 # tlwh[3] = tlwh[3] - tlwh[1]
                 tlwh = t.tlwh
                 tid = t.track_id
                 score = t.score

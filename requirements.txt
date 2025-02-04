@@ -1,0 +1,7 @@
+numpy<1.24
+cython
+cython_bbox
+loguru
+lap
+motmetrics
+ultralytics
