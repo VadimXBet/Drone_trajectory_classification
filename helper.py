@@ -28,7 +28,7 @@ def convert_history_to_dict(track_history):
 
     return history_dict
 
-def plot_tracking(im, track_history, trajectory_model):
+def plot_tracking(im, track_history, trajectory_model, frame_id, txt_path):
     im_h, im_w = im.shape[:2]
     obj_ids, tlwhs, class_ids, scores = track_history[-1]
     history_dict = convert_history_to_dict(track_history)
@@ -51,9 +51,10 @@ def plot_tracking(im, track_history, trajectory_model):
             # class_id = class_ids[i]
             continue
 
-        # if class_id==0:
-        #     # print(f"{frame_id},{t[4]},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{t[6]:.2f},-1,-1,-1\n")
-        #     print(f"_,{class_id},{x1},{y1},{w},{h},{scores[i]},-1,-1,-1\n")
+        if class_id==0:
+            f = open(txt_path, "a")
+            f.write(f"{frame_id},{class_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},{scores[i]:.2f},-1,-1,-1\n")
+            f.close()
 
         id_text = '{}'.format(int(obj_id))
         if class_id==0:

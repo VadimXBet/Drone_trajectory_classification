@@ -25,7 +25,7 @@ class ByteTrackArgument:
 def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
     model = YOLO('weights/best.pt')
 
-    trajectory_model = joblib.load('weights\GB_model_15.pkl')
+    trajectory_model = joblib.load('weights/GB_model_15.pkl')
     # with open('weights\GB_model_15.pkl', 'rb') as f:
     #     trajectory_model = pickle.load(f)
 
@@ -64,7 +64,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
         all_scores = []
         class_outputs = outputs[outputs[:, 5] == 0][:,:5]
         if class_outputs.size()[0] > 0:
-            online_targets = tracker.update(class_outputs, [img_height, img_width], [img_height, img_width])
+            online_targets = tracker.update(class_outputs.cpu(), [img_height, img_width], [img_height, img_width])
             if len(online_targets) == 0:
                 frame_id += 1
                 continue
@@ -105,7 +105,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             history.append((all_ids, all_tlwhs, all_classes, all_scores))
 
         if save_result and len(all_tlwhs) > 0:
-            online_im = plot_tracking(online_im, history, trajectory_model)
+            online_im = plot_tracking(online_im, history, trajectory_model, frame_id, txt_path)
             online_im = cv2.resize(online_im, (int(width), int(height)))
             vid_writer.write(online_im)
 
@@ -113,9 +113,9 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
     
     
 if __name__ == "__main__":
-    drone_tracking('video09.avi')
-    # PATH = 'videos'
-    # for video_name in ['V_DRONE_110.mp4']:
-    #     print(f'Video {video_name} is proccesing\n')
-    #     video_path = os.path.join(PATH, video_name)
-    #     drone_tracking(video_path)
+    # drone_tracking('video09.avi')
+    PATH = 'test_videos/videos'
+    for video_name in os.listdir(PATH):
+        print(f'Video {video_name} is proccesing\n')
+        video_path = os.path.join(PATH, video_name)
+        drone_tracking(video_path)
