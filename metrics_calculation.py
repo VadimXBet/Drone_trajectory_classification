@@ -40,8 +40,8 @@ def motMetricsEnhancedCalculator(gtSources, tSources):
 
 if __name__ == "__main__":
     gt_path = 'test_videos/gt'
-    gtSources = [os.path.join(gt_path, gt_file) for gt_file in os.listdir(gt_path) if gt_file.endswith(".txt")]
+    gtSources = [os.path.join(gt_path, gt_file) for gt_file in sorted(os.listdir(gt_path)) if gt_file.endswith(".txt")]
 
     t_path = ''
-    tSource = [os.path.join(t_path, gt_file) for gt_file in os.listdir(t_path) if gt_file.endswith(".txt")]
+    tSource = [os.path.join(t_path, gt_file) for gt_file in sorted(os.listdir(t_path)) if gt_file.endswith(".txt")]
     motMetricsEnhancedCalculator(gtSources, tSource)
