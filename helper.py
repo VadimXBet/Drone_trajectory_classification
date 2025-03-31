@@ -28,7 +28,7 @@ def convert_history_to_dict(track_history):
 
     return history_dict
 
-def plot_tracking(im, track_history, trajectory_model, frame_id, txt_path, name):
+def plot_tracking(im, track_history, frame_id, txt_path, name):
     im_h, im_w = im.shape[:2]
     obj_ids, tlwhs, class_ids, scores = track_history[-1]
     history_dict = convert_history_to_dict(track_history)

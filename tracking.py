@@ -40,6 +40,7 @@ class Detect_models_pipeline():
         if outputs.size()[0] > 0:
             for i, output in enumerate(outputs):
                 tlwh = output[0:4]
+                old_w, old_h = tlwh[2].item(), tlwh[3].item()
                 tlwh[2] = tlwh[2] - tlwh[0]
                 tlwh[3] = tlwh[3] - tlwh[1]
                 score = output[4]
@@ -56,10 +57,10 @@ class Detect_models_pipeline():
                     tlwh = res[0][0:4]
                     # tlwh[2] = tlwh[2] - tlwh[0]
                     # tlwh[3] = tlwh[3] - tlwh[1]
-                    x, y, w, h = tlwh
+                    x, y, _, _ = tlwh
                     x = x + x_min
                     y = y + y_min
-                    outputs[i] = torch.tensor([x, y, w, h, score])
+                    outputs[i] = torch.tensor([x, y, old_w, old_h, score])
                     # intbox = tuple(map(int, (x, y, x + w, y + h)))
                     # cv2.rectangle(img, intbox[0:2], intbox[2:4], color=(255, 0, 0), thickness=line_thickness)
                 else:
@@ -128,23 +129,28 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             online_classes = []
 
             for t in online_targets:
-                # tlwh = t[0:4]
+                # tlswh = t[0:4]
                 # tlwh[2] = tlwh[2] - tlwh[0]
                 # tlwh[3] = tlwh[3] - tlwh[1]
+
+                # score = t[4]
+                # tid = 1
+
                 tlwh = t.tlwh
                 tid = t.track_id
                 score = t.score
                 vertical = tlwh[2] / tlwh[3] > ByteTrackArgument.aspect_ratio_thresh
+                print(f"{frame_id},{tid},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{score:.2f},-1,-1,-1\n")
                 if tlwh[2] * tlwh[3] > ByteTrackArgument.min_box_area and not vertical:
                     online_tlwhs.append(tlwh)
                     online_ids.append(tid)  #online_ids.append(t[4])
                     online_classes.append(0)  #online_classes.append(int(t[5]))
                     online_scores.append(score)  #online_scores.append(t[6])
 
-                    # if save_result:
-                    #     f = open(txt_path, "a")
-                    #     f.write(f"{frame_id},{t[4]},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{t[6]:.2f},-1,-1,-1\n")
-                    #     f.close()
+                    if save_result:
+                        f = open(txt_path, "a")
+                        f.write(f"{frame_id},{tid},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{score:.2f},-1,-1,-1\n")
+                        f.close()
                     
             all_tlwhs += online_tlwhs
             all_ids += online_ids
@@ -158,7 +164,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             history.append((all_ids, all_tlwhs, all_classes, all_scores))
 
         if save_result and len(all_tlwhs) > 0:
-            online_im = plot_tracking(online_im, history, trajectory_model, frame_id, txt_path, INPUT_VIDEO_PATH.split("\\")[-1][:-4])
+            online_im = plot_tracking(online_im, history, frame_id, txt_path, INPUT_VIDEO_PATH.split("\\")[-1][:-4])
             online_im = cv2.resize(online_im, (int(width), int(height)))
             vid_writer.write(online_im)
     
