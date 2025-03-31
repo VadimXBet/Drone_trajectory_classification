@@ -33,7 +33,7 @@ class inference_detect_model():
 class Detect_models_pipeline():
     def __init__(self, conf1, conf2):
         self.first_model = inference_detect_model(weights='weights/yolov8m.pt', conf=conf1)
-        self.second_model = inference_detect_model(weights='weights\yolov11n_320x320_20.pt', conf=conf1)
+        self.second_model = inference_detect_model(weights='weights/yolov11n_320x320_20.pt', conf=conf1)
 
     def predict(self, img):
         img_height, img_width, outputs = self.first_model.predict(img)
@@ -140,7 +140,6 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
                 tid = t.track_id
                 score = t.score
                 vertical = tlwh[2] / tlwh[3] > ByteTrackArgument.aspect_ratio_thresh
-                print(f"{frame_id},{tid},{tlwh[0]:.2f},{tlwh[1]:.2f},{tlwh[2]:.2f},{tlwh[3]:.2f},{score:.2f},-1,-1,-1\n")
                 if tlwh[2] * tlwh[3] > ByteTrackArgument.min_box_area and not vertical:
                     online_tlwhs.append(tlwh)
                     online_ids.append(tid)  #online_ids.append(t[4])
@@ -169,9 +168,9 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             vid_writer.write(online_im)
     
 if __name__ == "__main__":
-    drone_tracking('test_videos\\videos\\video09.avi')
-    # PATH = 'test_videos/videos'
-    # for video_name in os.listdir(PATH):
-    #     print(f'Video {video_name} is proccesing\n')
-    #     video_path = os.path.join(PATH, video_name)
-    #     drone_tracking(video_path)
+    # drone_tracking('test_videos\\videos\\video09.avi')
+    PATH = 'test_videos/videos'
+    for video_name in os.listdir(PATH):
+        print(f'Video {video_name} is proccesing\n')
+        video_path = os.path.join(PATH, video_name)
+        drone_tracking(video_path)

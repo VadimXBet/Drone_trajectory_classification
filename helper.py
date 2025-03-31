@@ -53,9 +53,6 @@ def plot_tracking(im, track_history, frame_id, txt_path, name):
         #     continue
 
         if class_id==0:
-            f = open(txt_path, "a")
-            f.write(f"{frame_id},{class_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},{scores[i]:.2f},-1,-1,-1\n")
-            f.close()
             id_text = '{}'.format(int(obj_id))
             color = COLORS[class_id]
             # cv2.imwrite(f'buf_{name}_{obj_id}.jpg', im[intbox[1]:intbox[3], intbox[0]:intbox[2]])
