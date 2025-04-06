@@ -6,7 +6,8 @@ from feature_calculation import *
 THRESHOLD_APERANCE = 5
 ID2CLASSES = {0: 'drone', 1: 'other'}
 TEXT_COLOR = (0, 0, 255)
-COLORS = [(0, 255, 0),
+COLORS = [(0, 0, 255),
+          (0, 255, 0),
           (255, 0, 0)]
 
 text_scale = 1.5

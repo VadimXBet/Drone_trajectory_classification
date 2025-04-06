@@ -13,6 +13,8 @@ from ByteTrack.yolox.tracker.byte_tracker import BYTETracker
 from helper import *
 from feature_calculation import *
 
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 MIN_THRESHOLD = 0.5
 LEN_HISTORY = 15
 
@@ -33,7 +35,7 @@ class inference_detect_model():
 class Detect_models_pipeline():
     def __init__(self, conf1, conf2):
         self.first_model = inference_detect_model(weights='weights/yolov8m.pt', conf=conf1)
-        self.second_model = inference_detect_model(weights='weights/yolov11n_320x320_20.pt', conf=conf1)
+        self.second_model = inference_detect_model(weights='weights/yolov11n_320x320_40.pt', conf=conf1)
 
     def predict(self, img):
         img_height, img_width, outputs = self.first_model.predict(img)
@@ -52,15 +54,15 @@ class Detect_models_pipeline():
                 y_max = min(img_height, yc+h)
                 intbox = tuple(map(int, (x_min, y_min, x_max, y_max)))
                 crop_img = img[intbox[1]:intbox[3], intbox[0]:intbox[2]]
-                _, _, res = self.second_model.predict(crop_img)
+                crop_height, crop_width, res = self.second_model.predict(crop_img)
                 if res.size()[0] > 0:
                     tlwh = res[0][0:4]
                     # tlwh[2] = tlwh[2] - tlwh[0]
                     # tlwh[3] = tlwh[3] - tlwh[1]
-                    x, y, _, _ = tlwh
+                    x, y, w, h = tlwh
                     x = x + x_min
                     y = y + y_min
-                    outputs[i] = torch.tensor([x, y, old_w, old_h, score])
+                    outputs[i] = torch.tensor([x, y, old_w, old_h, res[0][4]])
                     # intbox = tuple(map(int, (x, y, x + w, y + h)))
                     # cv2.rectangle(img, intbox[0:2], intbox[2:4], color=(255, 0, 0), thickness=line_thickness)
                 else:
@@ -94,9 +96,9 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
     if save_result:
         save_folder = 'output_videos'
         os.makedirs(save_folder, exist_ok=True)
-        save_path = os.path.join(save_folder, INPUT_VIDEO_PATH.split("\\")[-1][:-4] + ".avi")
+        save_path = os.path.join(save_folder, INPUT_VIDEO_PATH.split("/")[-1][:-4] + ".avi")
         print(f"video save_path is {save_path}")
-        txt_path = os.path.join(save_folder, INPUT_VIDEO_PATH.split("\\")[-1][:-4] + ".txt")
+        txt_path = os.path.join(save_folder, INPUT_VIDEO_PATH.split("/")[-1][:-4] + ".txt")
         if os.path.exists(txt_path):
             os.remove(txt_path)
         vid_writer = cv2.VideoWriter(
@@ -108,7 +110,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
 
     while True:
         frame_id += 1
-        print(f'{frame_id} from {all_frames}')
+        print(f'{frame_id-1} from {all_frames}')
         ret_val, online_im = cap.read()
         if not ret_val or frame_id > 100:
             break
@@ -132,10 +134,6 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
                 # tlswh = t[0:4]
                 # tlwh[2] = tlwh[2] - tlwh[0]
                 # tlwh[3] = tlwh[3] - tlwh[1]
-
-                # score = t[4]
-                # tid = 1
-
                 tlwh = t.tlwh
                 tid = t.track_id
                 score = t.score
@@ -168,7 +166,7 @@ def drone_tracking(INPUT_VIDEO_PATH, save_result=True):
             vid_writer.write(online_im)
     
 if __name__ == "__main__":
-    # drone_tracking('test_videos\\videos\\video09.avi')
+    # drone_tracking('test_videos/videos/video14.avi')
     PATH = 'test_videos/videos'
     for video_name in os.listdir(PATH):
         print(f'Video {video_name} is proccesing\n')
